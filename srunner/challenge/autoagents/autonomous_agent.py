@@ -126,7 +126,6 @@ class AutonomousAgent(object):
         """
         Set the plan (route) for the agent
         """
-
         if self.track == Track.CAMERAS or self.track == Track.ALL_SENSORS:
             ds_ids = downsample_route(global_plan_world_coord, 32)
 

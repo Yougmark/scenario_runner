@@ -231,11 +231,11 @@ class RosAgent(AutonomousAgent):
         msg.header.stamp = rospy.Time.now()
         for wp in self._global_plan_world_coord:
             pose = PoseStamped()
-            pose.pose.position.x = wp[0].location.x
-            pose.pose.position.y = -wp[0].location.y
-            pose.pose.position.z = wp[0].location.z
+            pose.pose.position.x = wp[0].transform.location.x
+            pose.pose.position.y = -wp[0].transform.location.y
+            pose.pose.position.z = wp[0].transform.location.z
             quaternion = tf.transformations.quaternion_from_euler(
-                0, 0, -math.radians(wp[0].rotation.yaw))
+                0, 0, -math.radians(wp[0].transform.rotation.yaw))
             pose.pose.orientation.x = quaternion[0]
             pose.pose.orientation.y = quaternion[1]
             pose.pose.orientation.z = quaternion[2]

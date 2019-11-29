@@ -121,7 +121,7 @@ def convert_transform_to_location(transform_vec):
     """
     location_vec = []
     for transform_tuple in transform_vec:
-        location_vec.append((transform_tuple[0].location, transform_tuple[1]))
+        location_vec.append((transform_tuple[0].transform.location, transform_tuple[1]))
 
     return location_vec
 
@@ -218,10 +218,11 @@ class RouteScenario(BasicScenario):
                                                                                   world_annotations)
 
         self.route = _route_description['trajectory']
-        self.target = self.route[-1][0]
+        self.target = self.route[-1][0].transform
         CarlaDataProvider.set_ego_vehicle_route(convert_transform_to_location(self.route))
 
-        config.agent.set_global_plan(gps_route, self.route)
+        if config.agent:
+            config.agent.set_global_plan(gps_route, self.route)
 
         # Sample the scenarios to be used for this route instance.
         self.sampled_scenarios_definitions = self._scenario_sampling(potential_scenarios_definitions)
@@ -239,7 +240,7 @@ class RouteScenario(BasicScenario):
         Set/Update the start position of the ego_vehicle
         """
         # move ego to correct position
-        elevate_transform = self.route[0][0]
+        elevate_transform = self.route[0][0].transform
         elevate_transform.location.z += 0.5
 
         ego_vehicle = CarlaActorPool.request_new_actor('vehicle.lincoln.mkz2017',
@@ -293,11 +294,11 @@ class RouteScenario(BasicScenario):
         """
         route_length = 0.0  # in meters
 
-        prev_point = self.route[0][0]
+        prev_point = self.route[0][0].transform
         for current_point, _ in self.route[1:]:
-            dist = current_point.location.distance(prev_point.location)
+            dist = current_point.transform.location.distance(prev_point.location)
             route_length += dist
-            prev_point = current_point
+            prev_point = current_point.transform
 
         return int(SECONDS_GIVEN_PER_METERS * route_length)
 
@@ -307,7 +308,7 @@ class RouteScenario(BasicScenario):
         Draw a list of waypoints at a certain height given in vertical_shift.
         """
         for w in waypoints:
-            wp = w[0].location + carla.Location(z=vertical_shift)
+            wp = w[0].transform.location + carla.Location(z=vertical_shift)
             world.debug.draw_point(wp, size=0.1, color=carla.Color(0, 255, 0), life_time=persistency)
         for start, end, conditions in turn_positions_and_labels:
 
@@ -323,12 +324,12 @@ class RouteScenario(BasicScenario):
                 color = carla.Color(128, 128, 128)  # Gray
 
             for position in range(start, end):
-                world.debug.draw_point(waypoints[position][0].location + carla.Location(z=vertical_shift),
+                world.debug.draw_point(waypoints[position][0].transform.location + carla.Location(z=vertical_shift),
                                        size=0.2, color=color, life_time=persistency)
 
-        world.debug.draw_point(waypoints[0][0].location + carla.Location(z=vertical_shift), size=0.2,
+        world.debug.draw_point(waypoints[0][0].transform.location + carla.Location(z=vertical_shift), size=0.2,
                                color=carla.Color(0, 0, 255), life_time=persistency)
-        world.debug.draw_point(waypoints[-1][0].location + carla.Location(z=vertical_shift), size=0.2,
+        world.debug.draw_point(waypoints[-1][0].transform.location + carla.Location(z=vertical_shift), size=0.2,
                                color=carla.Color(255, 0, 0), life_time=persistency)
 
     def _scenario_sampling(self, potential_scenarios_definitions, random_seed=0):
@@ -377,7 +378,7 @@ class RouteScenario(BasicScenario):
         # We have to find the target.
         # we also have to convert the route to the expected format
         master_scenario_configuration = ScenarioConfiguration()
-        master_scenario_configuration.target = route[-1][0]  # Take the last point and add as target.
+        master_scenario_configuration.target = route[-1][0].transform # Take the last point and add as target.
         master_scenario_configuration.route = convert_transform_to_location(route)
         master_scenario_configuration.town = town_name
         # TODO THIS NAME IS BIT WEIRD SINCE THE EGO VEHICLE  IS ALREADY THERE, IT IS MORE ABOUT THE TRANSFORM

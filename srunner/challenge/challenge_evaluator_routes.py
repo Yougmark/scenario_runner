@@ -319,6 +319,7 @@ class ChallengeEvaluator(object):
         if self.agent_instance is not None:
             self.setup_sensors(self.agent_instance.sensors(), self.ego_vehicle)
 
+
     def draw_waypoints(self, waypoints, turn_positions_and_labels, vertical_shift, persistency=-1):
         """
         Draw a list of waypoints at a certain height given in vertical_shift.

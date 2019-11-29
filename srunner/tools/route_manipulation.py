@@ -52,8 +52,8 @@ def location_route_to_gps(route, lat_ref, lon_ref):
     """
     gps_route = []
 
-    for transform, connection in route:
-        gps_point = _location_to_gps(lat_ref, lon_ref, transform.location)
+    for waypoint, connection in route:
+        gps_point = _location_to_gps(lat_ref, lon_ref, waypoint.transform.location)
         gps_route.append((gps_point, connection))
 
     return gps_route
@@ -164,7 +164,7 @@ def interpolate_trajectory(world, waypoints_trajectory, hop_resolution=1.0):
         waypoint_next = waypoints_trajectory[i + 1]
         interpolated_trace = grp.trace_route(waypoint, waypoint_next)
         for wp_tuple in interpolated_trace:
-            route.append((wp_tuple[0].transform, wp_tuple[1]))
+            route.append((wp_tuple[0], wp_tuple[1]))
 
     # Increase the route position to avoid fails
 

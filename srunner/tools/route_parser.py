@@ -132,7 +132,7 @@ class RouteParser(object):
         match_position = 0
         # TODO this function can be optimized to run on Log(N) time
         for route_waypoint in route_description:
-            if match_waypoints(world_location, route_waypoint[0]):
+            if match_waypoints(world_location, route_waypoint[0].transform):
                 return match_position
             match_position += 1
 

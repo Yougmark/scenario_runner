@@ -352,6 +352,11 @@ class ScenarioRunner(object):
             self._cleanup()
             return
 
+        possible_vehicles = self.world.get_actors().filter('vehicle.*')
+        for vehicle in possible_vehicles:
+            if vehicle.attributes['role_name'] == "hero":
+                self.agent_instance.set_ego_vehicle(vehicle)
+
         # Set the appropriate weather conditions
         weather = carla.WeatherParameters(
             cloudyness=config.weather.cloudyness,
